@@ -12,7 +12,7 @@ Ein fortschrittliches Multi-Agent-System für hochqualitative, iterative Antwort
 - **A2ACoordinator**: Implementiert Agent-to-Agent Protokoll für koordinierte Multi-Agent-Operationen
 
 ### Informationsquellen
-- **RAG-System**: Colpali-RAG mit Qdrant als Vektordatenbank für lokale Wissensbasis-Abfragen
+- **RAG-System**: RAG mit Qdrant als Vektordatenbank für lokale Wissensbasis-Abfragen
 - **Web-Suche**: DuckDuckGo-Integration mit intelligenter Fallback-Strategie für aktuelle Informationen
 - **Web-Extraktion**: Headless Browser (Playwright) für Website-Inhalte
 - **Zeit-Service**: NTP-basierte präzise Zeitangaben für zeitkritische Anfragen
