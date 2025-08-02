@@ -162,12 +162,21 @@ class QueryAnalysisAgent:
 
         # Bestimme benötigte Quellen basierend auf Keywords
         required_sources = []
+
+        # IMMER RAG verwenden für lokales Wissen
+        required_sources.append("rag")
+
+        # Web-Suche für aktuelle oder spezielle Themen
         if any(
-            word in query.lower() for word in ["aktuell", "neuest", "heute", "jetzt"]
+            word in query.lower()
+            for word in ["aktuell", "neuest", "heute", "jetzt", "news", "entwicklung"]
         ):
             required_sources.extend(["web_search", "time"])
-        if any(word in query.lower() for word in ["was ist", "erkläre", "definition"]):
-            required_sources.append("rag")
+        # Auch für allgemeine Fragen Web-Suche hinzufügen für umfassendere Antworten
+        elif len(query.split()) > 3:  # Für längere Fragen
+            required_sources.append("web_search")
+
+        # Fallback: Mindestens RAG verwenden
         if not required_sources:
             required_sources = ["rag"]
 

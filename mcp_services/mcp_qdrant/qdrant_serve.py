@@ -77,17 +77,15 @@ def semantic_chunking(text, threshold_percentile=25):
     target_chunk_length = len(text) // max(4, len(sentences) // 4)  # Ziel: ~4 Chunks
 
     for sentence in sentences:
-        current_chunk.append(sentence.text)
-        current_length += len(sentence.text)
+        current_chunk.append(sentence)
+        current_length += len(sentence)
 
         if current_length >= target_chunk_length and len(current_chunk) >= 2:
             chunks.append(" ".join(current_chunk))
             current_chunk = []
             current_length = 0
 
-    if current_chunk:
-        current_chunk = []
-
+    # Füge restliche Sätze hinzu, falls vorhanden
     if current_chunk:
         chunks.append(" ".join(current_chunk))
 
@@ -213,7 +211,7 @@ class IntegratedKnowledgeSystem:
                     chunk = chunk_data["text"]
 
                 response = self.openai_client.embeddings.create(
-                    input=[chunk], model=os.getenv("EMBEDDING_MODEL")
+                    input=[chunk], model=EMBEDDING_MODEL
                 )
                 dense_embedding = response.data[0].embedding
 

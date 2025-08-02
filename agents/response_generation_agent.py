@@ -168,6 +168,10 @@ class ResponseGenerationAgent:
 
         required_sources = analysis.get("required_sources", ["rag"])
 
+        # SICHERSTELLEN, dass RAG IMMER verwendet wird
+        if "rag" not in required_sources:
+            required_sources.append("rag")
+
         # QUALITÄTS-MODUS: Erweiterte Suchstrategie
         if context and context.get("quality_focus", False):
             logger.info("QUALITÄTS-MODUS aktiviert - Erweiterte Informationssammlung")
@@ -515,9 +519,35 @@ class ResponseGenerationAgent:
 
             generated_response = response_content.strip()
 
-            # Füge Quellen-Information hinzu
+            # Füge detaillierte Quellen-Information hinzu
             if gathered_info.get("sources_used"):
-                sources_text = ", ".join(gathered_info["sources_used"])
+                sources_parts = []
+
+                # Sammle URLs aus Web-Suchen
+                if "web_search" in gathered_info.get("raw_sources", {}):
+                    web_data = gathered_info["raw_sources"]["web_search"]
+                    if web_data and web_data.get("results"):
+                        for item in web_data["results"][:2]:  # Nur top 2 URLs
+                            url = item.get("link", item.get("href", ""))
+                            if url:
+                                sources_parts.append(url)
+
+                # Sammle URLs aus zusätzlichen Web-Suchen
+                if "additional_web" in gathered_info.get("raw_sources", {}):
+                    additional_web_data = gathered_info["raw_sources"]["additional_web"]
+                    if additional_web_data and additional_web_data.get("results"):
+                        for item in additional_web_data["results"][
+                            :2
+                        ]:  # Nur top 2 URLs
+                            url = item.get("link", item.get("href", ""))
+                            if url:
+                                sources_parts.append(url)
+
+                # Fallback zu generischen Namen wenn keine URLs
+                if not sources_parts:
+                    sources_parts = gathered_info["sources_used"]
+
+                sources_text = ", ".join(sources_parts)
                 generated_response += f"\n\n*Quellen: {sources_text}*"
 
             logger.info(f"Antwort generiert (Länge: {len(generated_response)} Zeichen)")
@@ -568,18 +598,18 @@ class ResponseGenerationAgent:
     ) -> Optional[Dict]:
         """VERBESSERTE RAG-System-Abfrage für höhere Qualität."""
         try:
-            if not mcp_tools or "rag_query" not in mcp_tools:
+            if not mcp_tools or "query_knowledge" not in mcp_tools:
                 logger.warning("RAG-System nicht verfügbar")
                 return None
 
             # Erweiterte RAG-Parameter bei Qualitätsfokus
             limit = 10 if context and context.get("comprehensive_search", False) else 5
 
-            result = await mcp_tools["rag_query"](query=query, limit=limit)
+            result = await mcp_tools["query_knowledge"](query=query, limit=limit)
 
-            if result and result.get("knowledge_results"):
+            if result and result.get("results"):
                 return {
-                    "knowledge": result["knowledge_results"],
+                    "results": result["results"],
                     "query": query,
                     "source": "rag_enhanced",
                     "limit_used": limit,

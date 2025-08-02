@@ -1,69 +1,113 @@
 # Adaptive Response Engine
 
-Ein fortschrittliches Agent-System, das Nutzereingaben analysiert und verbessert. Es prüft Antworten iterativ auf Genauigkeit und erzwingt ggf. neue Antworten, bis die Anforderungen des Nutzers zu mindestens 95% erfüllt sind.
+Ein fortschrittliches Multi-Agent-System für hochqualitative, iterative Antwortgenerierung mit Web-Interface. Das System kombiniert lokale Wissensbasis (RAG), Web-Suche und adaptive Qualitätskontrolle für umfassende und präzise Antworten.
 
-## 🚀 Hauptfeatures
+## Hauptfeatures
 
-### Agent System
+### Multi-Agent-Architektur
 - **QueryAnalysisAgent**: Analysiert Nutzereingaben auf Intent, Komplexität und benötigte Informationsquellen
-- **ResponseGenerationAgent**: Generiert Antworten durch Synthese aus mehreren Informationsquellen  
+- **ResponseGenerationAgent**: Generiert Antworten durch intelligente Synthese aus mehreren Informationsquellen  
 - **QualityReviewAgent**: Bewertet Antwortqualität in 4 Dimensionen (Vollständigkeit, Genauigkeit, Relevanz, Kohärenz)
-- **IterationController**: Steuert den iterativen Verbesserungsprozess bis 95% Qualitätsschwelle erreicht ist
+- **IterationController**: Steuert iterative Verbesserungsprozesse bis 95% Qualitätsschwelle erreicht ist
 - **A2ACoordinator**: Implementiert Agent-to-Agent Protokoll für koordinierte Multi-Agent-Operationen
 
 ### Informationsquellen
-- **RAG-System**: Colpali-RAG mit Qdrant als Vektordatenbank für Wissensbasis-Abfragen
-- **Web-Suche**: DuckDuckGo-Integration mit Selenium für aktuelle Informationen
-- **Web-Extraktion**: Headless Browser für Website-Inhalte
-- **Zeit-Service**: NTP-basierte präzise Zeitangaben
+- **RAG-System**: Colpali-RAG mit Qdrant als Vektordatenbank für lokale Wissensbasis-Abfragen
+- **Web-Suche**: DuckDuckGo-Integration mit intelligenter Fallback-Strategie für aktuelle Informationen
+- **Web-Extraktion**: Headless Browser (Playwright) für Website-Inhalte
+- **Zeit-Service**: NTP-basierte präzise Zeitangaben für zeitkritische Anfragen
 
-### MCP Integration
-- Vollständige Model Context Protocol (MCP) Unterstützung
-- FastAPI-basierter MCP Server mit Tool-Discovery
-- Automatische Endpunkt-Erkennung und -Integration
+### Gradio Web-Interface
+- **Chat-Interface**: Benutzerfreundliche Web-Oberfläche für Anfragen
+- **Dokument-Upload**: Einfache Erweiterung der Wissensbasis über PDF, TXT, DOCX, etc.
+- **Monochrome Design**: Professionelles, ablenkungsfreies Interface
+- **Echtzeit-Verarbeitung**: Live-Updates während der Antwortgenerierung
 
-## 🏗️ Systemarchitektur
+### Model Context Protocol (MCP) Integration
+- Vollständige MCP-Unterstützung für externe Tool-Integration
+- FastAPI-basierter MCP Server mit automatischer Tool-Discovery
+- Nahtlose Integration in bestehende MCP-Ökosysteme
+
+## Systemarchitektur
 
 ```
 Adaptive Response Engine
-├── Query Analysis Agent (Intent & Komplexität)
-├── Response Generation Agent (Multi-Source Synthese)
-├── Quality Review Agent (4D-Qualitätsbewertung)
-├── Iteration Controller (Verbesserungsschleife)
-└── A2A Coordinator (Agent-Koordination)
-
-MCP Tools Integration:
-├── Qdrant RAG Service (Wissensbasis)
-├── DuckDuckGo Search (Web-Suche)
-├── Headless Browser (Web-Extraktion)
-└── NTP Time Service (Zeitdienst)
+├── Web Interface (Gradio)
+│   ├── Chat-Tab (Anfrageverarbeitung)
+│   └── Upload-Tab (Dokumentenindexierung)
+│
+├── Agent System
+│   ├── Query Analysis Agent (Intent & Komplexität)
+│   ├── Response Generation Agent (Multi-Source Synthese)
+│   ├── Quality Review Agent (4D-Qualitätsbewertung)
+│   ├── Iteration Controller (Verbesserungsschleife)
+│   └── A2A Coordinator (Agent-Koordination)
+│
+└── MCP Services
+    ├── Qdrant RAG Service (Wissensbasis mit Embeddings)
+    ├── DuckDuckGo Search (Multi-Backend Web-Suche)
+    ├── Headless Browser (Website-Textextraktion)
+    └── NTP Time Service (Präzise Zeitdienste)
 ```
 
-## 📦 Installation
+## Installation
 
+### Voraussetzungen
+- Python 3.10+
+- UV Package Manager
+- Qdrant Vector Database (Docker empfohlen)
+- Ollama (für lokale LLM- und Embedding-Models)
+
+### Setup
 ```bash
+# Repository klonen
+git clone <repository-url>
+cd Adaptive_Response_Engine
+
 # Dependencies installieren
 uv sync
 
-# Umgebungsvariablen konfigurieren
+# Qdrant starten (Docker)
+docker run -p 6333:6333 qdrant/qdrant
+
+# Ollama installieren und Models laden
+ollama pull qwen2.5:latest
+ollama pull bge-m3:latest
+
+# Umgebungsvariablen konfigurieren (optional)
 cp .env.example .env
-# Bearbeite .env mit deinen API-Keys
+# Bearbeite .env für spezielle Konfigurationen
 ```
 
-## 🚀 Verwendung
+## Verwendung
 
-### Server starten
+### Web-Interface starten
 ```bash
-# MCP Server starten
+# Hauptanwendung starten
+uv run python gradio_frontend.py
+# oder alternativ
+uv run python start_frontend.py
+
+# Interface öffnen: http://localhost:7860
+```
+
+### Chat-Funktionen
+1. **Fragen stellen**: Eingabe in das Chat-Interface
+2. **Dokumentenupload**: PDF/TXT-Dateien über Upload-Tab hinzufügen
+3. **Quellenverweise**: Automatische Anzeige relevanter URLs und Quellen
+
+### MCP Server (optional)
+```bash
+# MCP Server für externe Integration
 uv run mcp_main.py
 
-# Demo ausführen
+# Demo-Script für Entwicklung
 uv run demo.py
 ```
 
 ### API Endpunkte
 
-#### Hauptendpunkt - Query Verarbeitung
+#### Query-Verarbeitung
 ```bash
 POST /process-query
 {
@@ -73,51 +117,56 @@ POST /process-query
 }
 ```
 
-#### System Status
+#### System-Status
 ```bash
 GET /system-status
 ```
 
-### MCP Tools
-Die folgenden Tools sind über MCP verfügbar:
-- `process_user_query`: Hauptendpunkt für Agent-System
-- `extract_website_text`: Web-Inhalte extrahieren
-- `duckduckgo_search`: Web-Suche durchführen
-- `query_knowledge`: Wissensbasis abfragen
-- `index_document`: Dokument in Wissensbasis hinzufügen
-- `get_current_time_utc`: Aktuelle Zeit abrufen
-
-## ⚙️ Konfiguration
+## Konfiguration
 
 ### Umgebungsvariablen
 ```bash
-# OpenAI API für LLM-Services
-OPENAI_API_KEY=sk-...
+# LLM-Konfiguration (Standard: Ollama)
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_MODEL=qwen2.5:latest
+EMBEDDING_MODEL=bge-m3:latest
 
-# Agent System Konfiguration  
-MAX_ITERATIONS=3                # Max. Iterationen pro Query
-QUALITY_THRESHOLD=95.0          # Mindestqualität in %
+# Agent System
+MAX_ITERATIONS=3                # Maximale Verbesserungsiterationen
+QUALITY_THRESHOLD=95.0          # Mindestqualität in Prozent
 
 # Qdrant Konfiguration
 QDRANT_URL=http://localhost:6333
-RAG_COLLECTION_NAME=integrated_knowledge
+RAG_COLLECTION_NAME=adaptive_response_MANHATTAN
 
 # Server Konfiguration
-SERVER_HOST=localhost
-SERVER_PORT=8000
-SERVER_SCHEME=http
+SERVER_HOST=0.0.0.0
+SERVER_PORT=7860
 ```
 
-### Agent System Parameter
+### System-Parameter
 - **Qualitätsschwelle**: 95% (konfigurierbar)
-- **Max. Iterationen**: 3 (konfigurierbar)  
-- **A2A-Modus**: Aktivierbar für koordinierte Agent-Operationen
-- **Fallback-Modi**: Bei Fehlern automatischer Wechsel zu direkter Verarbeitung
+- **Maximale Iterationen**: 3 pro Anfrage
+- **Embedding-Model**: bge-m3:latest (mehrsprachig)
+- **LLM-Model**: qwen2.5:latest (Antwortgenerierung)
+- **Web-Suche**: Automatisches Fallback zwischen DuckDuckGo, Google, Brave, Bing, Yandex
 
-## 🔧 Entwicklung
+## MCP Tools
+
+Verfügbare Tools über Model Context Protocol:
+- `process_user_query`: Hauptverarbeitung über Agent-System
+- `extract_website_text`: Website-Inhalte extrahieren
+- `duckduckgo_search`: Intelligente Web-Suche
+- `query_knowledge`: Lokale Wissensbasis abfragen
+- `index_document`: Dokumente zur Wissensbasis hinzufügen
+- `get_current_time_utc`: Aktuelle Zeitangaben
+
+## Entwicklung
 
 ### Projektstruktur
 ```
+├── gradio_frontend.py         # Hauptanwendung (Web-Interface)
+├── start_frontend.py          # Einfacher Launcher
 ├── agents/                    # Agent System
 │   ├── adaptive_response_engine.py    # Hauptorchestrator
 │   ├── query_analysis_agent.py        # Query-Analyse
@@ -126,39 +175,75 @@ SERVER_SCHEME=http
 │   ├── iteration_controller.py        # Iterationssteuerung
 │   └── a2a_coordinator.py             # Agent-Koordination
 ├── mcp_services/              # MCP Service Implementierungen
-│   ├── mcp_qdrant/           # RAG mit Qdrant
-│   ├── mcp_search/           # DuckDuckGo Suche
+│   ├── mcp_qdrant/           # RAG mit Qdrant & Embeddings
+│   ├── mcp_search/           # Multi-Backend Web-Suche
 │   ├── mcp_time/             # NTP Zeit-Service
-│   └── mcp_website/          # Web-Extraktion
-├── mcp_main.py               # Haupt-MCP-Server
-├── demo.py                   # Demo-Script
-└── README.md                 # Diese Datei
+│   └── mcp_website/          # Playwright Web-Extraktion
+├── mcp_main.py               # MCP-Server für externe Integration
+├── demo.py                   # Entwicklungs-Demo
+└── requirements.txt          # Python Dependencies
 ```
 
-### Erweitern des Systems
-1. **Neue Agents**: Implementiere AgentRole und registriere im A2ACoordinator
-2. **Neue MCP Tools**: Füge Service in mcp_services/ hinzu und registriere in mcp_main.py
-3. **Neue Qualitätsdimensionen**: Erweitere QualityReviewAgent.evaluate_response()
+### Systemerweiterungen
+1. **Neue Agents**: Implementiere AgentRole Interface und registriere im A2ACoordinator
+2. **Neue MCP Services**: Service in mcp_services/ hinzufügen und in gradio_frontend.py registrieren
+3. **Neue Qualitätsdimensionen**: QualityReviewAgent.evaluate_response() erweitern
+4. **UI-Komponenten**: Gradio-Interface in create_interface() anpassen
 
-## 📊 Performance & Monitoring
+### Debugging & Monitoring
+```bash
+# Ausführliche Logs aktivieren
+export LOGGING_LEVEL=DEBUG
+
+# System-Status prüfen
+curl http://localhost:7860/system-status
+
+# Performance-Report
+# Verfügbar über AdaptiveResponseEngine.get_performance_report()
+```
+
+## Performance & Monitoring
 
 Das System bietet umfangreiches Performance-Monitoring:
-- Query-Verarbeitungszeiten
-- Qualitäts-Scores über Zeit
-- Iterations-Statistiken  
-- Agent-Koordinations-Metriken
-- Erfolgsraten und Trends
+- **Query-Verarbeitungszeiten**: Durchschnittliche Antwortzeiten pro Agent
+- **Qualitäts-Trends**: Entwicklung der Antwortqualität über Zeit
+- **Iterations-Statistiken**: Erfolgsraten und Verbesserungszyklen
+- **Quellen-Analytics**: Nutzung von RAG vs. Web-Suche
+- **Agent-Koordination**: Effizienz der Multi-Agent-Zusammenarbeit
 
-Zugriff über `/system-status` Endpunkt oder AdaptiveResponseEngine.get_performance_report().
+Monitoring über:
+- Terminal-Logs (strukturiertes Logging)
+- `/system-status` API-Endpunkt
+- Performance-Reports über Python-API
 
-## 🤝 Contributing
+## Troubleshooting
 
-1. Fork das Repository
-2. Erstelle einen Feature-Branch (`git checkout -b feature/amazing-feature`)
-3. Committe deine Änderungen (`git commit -m 'Add amazing feature'`)
-4. Push zum Branch (`git push origin feature/amazing-feature`)
-5. Öffne eine Pull Request
+### Häufige Probleme
+1. **RAG-System nicht verfügbar**: Qdrant-Server prüfen, Embedding-Model verificieren
+2. **Web-Suche fehlgeschlagen**: Internet-Verbindung und DuckDuckGo-Verfügbarkeit prüfen
+3. **LLM-Anfragen scheitern**: Ollama-Server Status und Model-Verfügbarkeit prüfen
+4. **Gradio startet nicht**: Port 7860 Verfügbarkeit und Python-Environment prüfen
 
-## 📝 Lizenz
+### Logs und Debugging
+```bash
+# Detaillierte Logs
+tail -f logs/adaptive_response_engine.log
 
-Dieses Projekt steht unter der MIT Lizenz - siehe LICENSE Datei für Details.
+# Ollama-Status prüfen
+ollama list
+ollama ps
+
+# Qdrant-Status prüfen
+curl http://localhost:6333/health
+```
+
+## Lizenz
+
+Dieses Projekt steht unter der AGPLv3 Lizenz - siehe LICENSE-Datei für Details.
+
+## Beiträge
+
+Beiträge sind willkommen! Bitte:
+1. Issues für Bugs oder Feature-Requests erstellen
+2. Pull Requests mit Tests und Dokumentation einreichen
+3. Code-Style und Architektur-Prinzipien beachten
