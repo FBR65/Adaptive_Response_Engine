@@ -180,7 +180,6 @@ Verfügbare Tools über Model Context Protocol:
 │   ├── mcp_time/             # NTP Zeit-Service
 │   └── mcp_website/          # Playwright Web-Extraktion
 ├── mcp_main.py               # MCP-Server für externe Integration
-├── demo.py                   # Entwicklungs-Demo
 └── requirements.txt          # Python Dependencies
 ```
 
@@ -241,9 +240,3 @@ curl http://localhost:6333/health
 
 Dieses Projekt steht unter der AGPLv3 Lizenz - siehe LICENSE-Datei für Details.
 
-## Beiträge
-
-Beiträge sind willkommen! Bitte:
-1. Issues für Bugs oder Feature-Requests erstellen
-2. Pull Requests mit Tests und Dokumentation einreichen
-3. Code-Style und Architektur-Prinzipien beachten
